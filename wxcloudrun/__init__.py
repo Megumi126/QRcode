@@ -1,5 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 import pymysql
 import config
 
@@ -11,11 +13,16 @@ app = Flask(__name__, instance_relative_config=True)
 app.config['DEBUG'] = config.DEBUG
 
 # 设定数据库链接
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://{}:{}@{}/flask_demo'.format(config.username, config.password,
-                                                                             config.db_address)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://{}:{}@{}/{}'.format(
+    config.username, config.password, config.db_address, config.db_name
+)
 
 # 初始化DB操作对象
 db = SQLAlchemy(app)
+
+# 初始化限流
+limiter = Limiter(key_func=get_remote_address, default_limits=[config.RATE_LIMIT_IP])
+limiter.init_app(app)
 
 # 加载控制器
 from wxcloudrun import views

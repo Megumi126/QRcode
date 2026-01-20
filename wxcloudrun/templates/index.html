@@ -51,50 +51,6 @@
       align-items: center;
     }
 
-    .count-button {
-      width: 320px;
-      height: 40px;
-      box-sizing: border-box;
-      margin: 16px 8px;
-      font-weight: 500;
-      font-size: 17px;
-      color: #FFFFFF;
-      letter-spacing: 1px;
-      text-align: center;
-      border-radius: 4px;
-    }
-
-    .count-number {
-      align-self: flex-start;
-      opacity: 0.9;
-      font-weight: 500;
-      font-size: 14px;
-      color: #000000;
-    }
-
-    .count-reset {
-      color: #576b95;
-      cursor: pointer;
-      margin-left: auto;
-    }
-
-    .count-text {
-      width: 320px;
-      height: 40px;
-      padding: 0 12px;
-      margin: 0 auto;
-      line-height: 40px;
-      text-align: left;
-      display: flex;
-      border: 1px solid rgba(0, 0, 0, 0.1);
-      border-radius: 4px;
-      opacity: 0.9;
-      box-sizing: border-box;
-      font-weight: 400;
-      font-size: 14px;
-      color: #000000;
-    }
-
     .quote {
       font-size: 12px;
     }
@@ -261,6 +217,34 @@
       flex-grow: 0;
       color: #c04100;
     }
+    .crud-title {
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .crud-grid {
+      display: grid;
+      grid-template-columns: 1.6fr 0.8fr auto;
+      gap: 8px;
+      align-items: end;
+    }
+    .crud-field label {
+      font-size: 12px;
+      margin-bottom: 4px;
+      color: rgba(0,0,0,0.7);
+    }
+    .crud-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+    .crud-table {
+      margin-top: 8px;
+    }
+    .help-text {
+      font-size: 12px;
+      color: rgba(0,0,0,0.55);
+      margin-top: 6px;
+    }
   </style>
 </head>
 
@@ -278,13 +262,6 @@
       <div style="display: inline; margin-bottom: 48px" class="title-text">欢迎使用微信云托管</div>
     </div>
     <div style="text-align: center; display: flex; flex-direction: column; align-items: center; margin: 0">
-      <span class="count-text">
-        <span style="margin-right: 16px;">当前计数:</span>
-        <span class="count-number"></span>
-        <span class="count-reset" onclick="set('clear')">清零</span>
-      </span>
-      <a class="btn btn-success btn-lg count-button" style="background: #07c160; border: 0"
-        onclick="set('inc')">计数+1</a>
       <div class="card" style="width: 320px; margin-bottom: 48px;">
         <div class="card-body">
           <img class="qrcode middle"
@@ -302,6 +279,60 @@
         <div class="scan-result">
           <div>识别内容：<span id="scan-content">-</span></div>
           <div>验证结果：<span id="scan-result">-</span></div>
+        </div>
+      </div>
+      <div class="scan-card">
+        <div style="font-weight: 500; margin-bottom: 8px;">防伪接口测试（/api/antifake/verify）</div>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <input id="test-code" class="form-control form-control-sm" placeholder="16位防伪码 code" />
+          <input id="test-scan-time" class="form-control form-control-sm" placeholder="YYYY/MM/DD HH:mm:ss（默认当前时间）" />
+          <input id="test-ip" class="form-control form-control-sm" placeholder="客户端IP（字符串）" />
+          <div style="display:flex; gap:8px; justify-content:center; margin-top:4px;">
+            <button class="btn btn-success btn-sm" style="background:#07c160; border:0" onclick="callVerify()">调用验证</button>
+            <button class="btn btn-outline-secondary btn-sm" onclick="fillNow()">填入当前时间</button>
+          </div>
+          <div class="scan-result">
+            <div>返回状态：<span id="test-status">-</span></div>
+            <div>上次时间：<span id="test-last-time">-</span></div>
+            <div>上次IP：<span id="test-last-ip">-</span></div>
+            <div>累计次数：<span id="test-count">-</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="scan-card">
+        <div class="crud-title">防伪码管理</div>
+        <div class="crud-grid">
+          <div class="crud-field">
+            <label for="new-code">防伪码</label>
+            <input id="new-code" class="form-control form-control-sm" placeholder="请输入16位防伪码" />
+          </div>
+          <div class="crud-field">
+            <label for="new-is-test">测试码</label>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="new-is-test">
+              <label class="form-check-label" for="new-is-test">启用</label>
+            </div>
+          </div>
+          <div class="crud-actions">
+            <button class="btn btn-primary btn-sm" onclick="addCode()">新增</button>
+            <button class="btn btn-outline-secondary btn-sm" onclick="loadCodes()">刷新列表</button>
+          </div>
+        </div>
+        <div class="help-text">操作包含：删除、切换测试状态、重置次数</div>
+        <div class="crud-table">
+          <table class="table table-sm table-striped table-hover align-middle">
+            <thead>
+              <tr>
+                <th style="width:26%">防伪码</th>
+                <th style="width:10%">测试</th>
+                <th style="width:12%">次数</th>
+                <th style="width:22%">上次时间</th>
+                <th style="width:20%">上次IP</th>
+                <th style="width:10%">操作</th>
+              </tr>
+            </thead>
+            <tbody id="codes-body"></tbody>
+          </table>
         </div>
       </div>
       <div>
@@ -352,32 +383,13 @@
   integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.9/html5-qrcode.min.js"></script>
 <script>
-  init();
   let html5QrCode = null;
   let isScanning = false;
   let lastScanText = '';
-  function init() {
-    $.ajax("/api/count", {
-      method: "get",
-    }).done(function (res) {
-      if (res && res.data !== undefined) {
-        $(".count-number").html(res.data);
-      }
-    });
-  }
-  function set(action) {
-    $.ajax("/api/count", {
-      method: "POST",
-      contentType: "application/json; charset=utf-8",
-      dataType: "json",
-      data: JSON.stringify({
-        action: action,
-      }),
-    }).done(function (res) {
-      if (res && res.data !== undefined) {
-        $(".count-number").html(res.data);
-      }
-    });
+  function pad(n){return n<10?'0'+n:n}
+  function nowStr(){
+    const d=new Date();
+    return d.getFullYear()+'/'+pad(d.getMonth()+1)+'/'+pad(d.getDate())+' '+pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds());
   }
 
   function startScan() {
@@ -439,6 +451,95 @@
       }
     });
   }
+
+  function fillNow(){
+    $("#test-scan-time").val(nowStr());
+  }
+  function callVerify(){
+    const code = ($("#test-code").val()||'').trim();
+    const scanTime = ($("#test-scan-time").val()||'').trim() || nowStr();
+    const ip = ($("#test-ip").val()||'').trim() || '1.2.3.4';
+    $.ajax("/api/antifake/verify", {
+      method: "POST",
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      data: JSON.stringify({code, scanTime, ip}),
+    }).done(function(res){
+      $("#test-status").text(res && res.status ? res.status : 'error');
+      $("#test-last-time").text(res && res.lastQueryTime ? res.lastQueryTime : '-');
+      $("#test-last-ip").text(res && res.lastQueryIp ? res.lastQueryIp : '-');
+      $("#test-count").text(res && res.queryCount !== undefined ? res.queryCount : '-');
+    }).fail(function(){
+      $("#test-status").text('error');
+    });
+  }
+
+  function renderCodes(list){
+    const $tbody = $("#codes-body");
+    $tbody.empty();
+    (list||[]).forEach(function(r){
+      const tr = $("<tr></tr>");
+      tr.append($("<td></td>").text(r.code));
+      const $badge = $('<span class="badge"></span>').addClass(r.is_test ? 'bg-warning text-dark' : 'bg-secondary').text(r.is_test ? '测试' : '否');
+      tr.append($("<td></td>").append($badge));
+      tr.append($("<td></td>").text(r.scan_count));
+      tr.append($("<td></td>").text(r.last_scan_time || '-'));
+      tr.append($("<td></td>").text(r.last_scan_ip || '-'));
+      const $ops = $("<td></td>");
+      const $group = $('<div class="btn-group btn-group-sm" role="group"></div>');
+      const $del = $('<button class="btn btn-outline-danger" title="删除">删除</button>').click(function(){ deleteCode(r.code) });
+      const $toggle = $('<button class="btn btn-outline-warning" title="切换测试状态"></button>').text(r.is_test?'取消测试':'设为测试').click(function(){ updateCode(r.code, {is_test: !r.is_test}) });
+      const $reset = $('<button class="btn btn-outline-secondary" title="重置次数">重置</button>').click(function(){ updateCode(r.code, {scan_count: 0}) });
+      $group.append($del).append($toggle).append($reset);
+      $ops.append($group);
+      tr.append($ops);
+      $tbody.append(tr);
+    });
+    if ($tbody.children().length === 0) {
+      const tr = $("<tr></tr>");
+      const td = $('<td colspan="6" style="text-align:center; color:rgba(0,0,0,0.55);">暂无数据</td>');
+      tr.append(td);
+      $tbody.append(tr);
+    }
+  }
+  function loadCodes(){
+    $.ajax("/api/antifake/codes", {method:"GET"}).done(function(res){
+      renderCodes(res && res.list ? res.list : []);
+    });
+  }
+  function addCode(){
+    const code = ($("#new-code").val()||'').trim();
+    const is_test = $("#new-is-test").is(":checked");
+    $.ajax("/api/antifake/codes", {
+      method: "POST",
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      data: JSON.stringify({code, is_test}),
+    }).done(function(){
+      $("#new-code").val('');
+      $("#new-is-test").prop("checked", false);
+      loadCodes();
+    });
+  }
+  function updateCode(code, payload){
+    $.ajax("/api/antifake/codes/"+code, {
+      method: "PUT",
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      data: JSON.stringify(payload||{}),
+    }).done(function(){
+      loadCodes();
+    });
+  }
+  function deleteCode(code){
+    $.ajax("/api/antifake/codes/"+code, {method:"DELETE"}).done(function(){
+      loadCodes();
+    });
+  }
+  $(function(){
+    fillNow();
+    loadCodes();
+  });
 </script>
 
 </html>
