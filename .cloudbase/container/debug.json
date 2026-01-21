@@ -4,7 +4,7 @@
       "name": "qrcode",
       "domain": "",
       "ip": "",
-      "containerId": "ffddd067e4bbb4e9fc4cfac164843f59d3f0293af8b9dbed963a4676ad0c751f"
+      "containerId": "ccde5f14e8485c27ed890dea3587f5c216065eb35f3e37923313deb625d3023f"
     }
   ],
   "config": {
@@ -27,9 +27,9 @@
         }
       ],
       "envParams": {
-        "MYSQL_USERNAME": "",
-        "MYSQL_PASSWORD": "",
-        "MYSQL_ADDRESS": ""
+        "MYSQL_USERNAME": "root",
+        "MYSQL_PASSWORD": "VGKE4CtwcSjkgdD",
+        "MYSQL_ADDRESS": "10.9.103.123:3306"
       },
       "customLogs": "stdout",
       "initialDelaySeconds": 2,

@@ -160,8 +160,9 @@
     }
 
     .scan-card {
-      width: 320px;
-      margin: 16px 0 48px;
+      width: 100%;
+      max-width: 720px;
+      margin: 16px auto 48px;
       padding: 16px;
       border: 1px solid rgba(0, 0, 0, 0.10);
       border-radius: 8px;
@@ -259,28 +260,9 @@
     <div class="title">
       <img class="title-logo"
         src="https://static-index-4gtuqm3bfa95c963-1304825656.tcloudbaseapp.com/official-website/favicon.svg" />
-      <div style="display: inline; margin-bottom: 48px" class="title-text">欢迎使用微信云托管</div>
+      <div style="display: inline; margin-bottom: 24px" class="title-text">防伪码后端测试控制台</div>
     </div>
-    <div style="text-align: center; display: flex; flex-direction: column; align-items: center; margin: 0">
-      <div class="card" style="width: 320px; margin-bottom: 48px;">
-        <div class="card-body">
-          <img class="qrcode middle"
-            src="https://qcloudimg.tencent-cloud.cn/raw/89b46988d3cd73d8a56e76a1b82bb377.png" />
-          <small class="card-text" style="display: flex; justify-content: center; margin-top: 8px">扫码加入微信云托管用户群</small>
-        </div>
-      </div>
-      <div class="scan-card">
-        <div style="font-weight: 500; margin-bottom: 8px;">防伪码扫码验证</div>
-        <div id="qr-reader">点击“开始扫码”调用摄像头</div>
-        <div class="scan-actions">
-          <button class="btn btn-success btn-sm" style="background: #07c160; border: 0" onclick="startScan()">开始扫码</button>
-          <button class="btn btn-outline-secondary btn-sm" onclick="stopScan()">停止扫码</button>
-        </div>
-        <div class="scan-result">
-          <div>识别内容：<span id="scan-content">-</span></div>
-          <div>验证结果：<span id="scan-result">-</span></div>
-        </div>
-      </div>
+    <div style="text-align: center; display: flex; flex-direction: column; align-items: center; margin: 0; width: 100%; padding: 0 12px; box-sizing: border-box;">
       <div class="scan-card">
         <div style="font-weight: 500; margin-bottom: 8px;">防伪接口测试（/api/antifake/verify）</div>
         <div style="display:flex; flex-direction:column; gap:8px;">
@@ -377,79 +359,15 @@
       </div>
     </div>
   </div>
-</body>
+ </body>
 <script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
   integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/html5-qrcode@2.3.9/html5-qrcode.min.js"></script>
 <script>
-  let html5QrCode = null;
-  let isScanning = false;
-  let lastScanText = '';
   function pad(n){return n<10?'0'+n:n}
   function nowStr(){
     const d=new Date();
     return d.getFullYear()+'/'+pad(d.getMonth()+1)+'/'+pad(d.getDate())+' '+pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds());
-  }
-
-  function startScan() {
-    if (isScanning) {
-      return;
-    }
-    html5QrCode = new Html5Qrcode("qr-reader");
-    html5QrCode.start(
-      { facingMode: "environment" },
-      { fps: 10, qrbox: { width: 220, height: 220 } },
-      onScanSuccess,
-      function () {
-      }
-    ).then(function () {
-      isScanning = true;
-      $("#scan-result").text("等待扫码...");
-    }).catch(function (err) {
-      $("#scan-result").text("无法开启摄像头：" + err);
-    });
-  }
-
-  function stopScan() {
-    if (!html5QrCode || !isScanning) {
-      return;
-    }
-    html5QrCode.stop().then(function () {
-      html5QrCode.clear();
-      isScanning = false;
-      $("#scan-result").text("已停止扫码");
-    });
-  }
-
-  function onScanSuccess(decodedText) {
-    if (decodedText === lastScanText) {
-      return;
-    }
-    lastScanText = decodedText;
-    $("#scan-content").text(decodedText);
-    $("#scan-result").text("校验中...");
-    stopScan();
-    verifyCode(decodedText);
-  }
-
-  function verifyCode(qrData) {
-    $.ajax("/api/verify", {
-      method: "POST",
-      contentType: "application/json; charset=utf-8",
-      dataType: "json",
-      data: JSON.stringify({
-        qr_data: qrData,
-      }),
-    }).done(function (res) {
-      if (res && res.code === 0 && res.data) {
-        $("#scan-result").text(res.data.message + "（使用次数：" + res.data.usageCount + "）");
-      } else if (res && res.errorMsg) {
-        $("#scan-result").text(res.errorMsg);
-      } else {
-        $("#scan-result").text("校验失败");
-      }
-    });
   }
 
   function fillNow(){
